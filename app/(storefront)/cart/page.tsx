@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, ShoppingBag } from "lucide-react";
 
+import { createCheckoutSession } from "@/app/actions/checkout";
 import { CartItemRow } from "@/components/storefront/cart-item-row";
 import { PageHeader } from "@/components/storefront/page-header";
 import { buttonStyles } from "@/components/ui/button";
@@ -82,9 +83,11 @@ export default async function CartPage() {
               </p>
             ) : null}
 
-            <Link href="/checkout" className={buttonStyles("primary", "mt-6 w-full")}>
-              Checkout <ArrowRight className="h-4 w-4" />
-            </Link>
+            <form action={createCheckoutSession} className="mt-6">
+              <button type="submit" className={buttonStyles("primary", "w-full")}>
+                Checkout <ArrowRight className="h-4 w-4" />
+              </button>
+            </form>
             <Link
               href="/shop"
               className="mt-3 block text-center text-sm font-medium text-mocha hover:text-gold"
