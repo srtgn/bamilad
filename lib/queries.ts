@@ -51,3 +51,56 @@ export async function getAllBlogPosts() {
 export async function getBlogPost(slug: string) {
   return prisma.blogPost.findUnique({ where: { slug } });
 }
+
+export async function getProductBySlug(slug: string) {
+  return prisma.product.findFirst({
+    where: { slug, status: "ACTIVE" },
+    include: { category: true },
+  });
+}
+
+export async function getAllActiveProducts() {
+  return prisma.product.findMany({
+    where: { status: "ACTIVE" },
+    orderBy: [{ trending: "desc" }, { createdAt: "desc" }],
+  });
+}
+
+export async function getCategoryBySlug(slug: string) {
+  return prisma.category.findUnique({
+    where: { slug },
+    include: { children: true, parent: true },
+  });
+}
+
+/** Products in a category — includes products of child categories when given a parent. */
+export async function getProductsForCategory(slug: string) {
+  const category = await prisma.category.findUnique({
+    where: { slug },
+    include: {
+      children: {
+        select: { id: true, name: true, slug: true },
+        orderBy: { sortOrder: "asc" },
+      },
+    },
+  });
+  if (!category) return { category: null, products: [] };
+  const categoryIds = [category.id, ...category.children.map((c) => c.id)];
+  const products = await prisma.product.findMany({
+    where: { status: "ACTIVE", categoryId: { in: categoryIds } },
+    orderBy: { createdAt: "desc" },
+  });
+  return { category, products };
+}
+
+export async function getRelatedProducts(
+  categoryId: string | null,
+  excludeId: string,
+  take = 4,
+) {
+  if (!categoryId) return [];
+  return prisma.product.findMany({
+    where: { status: "ACTIVE", categoryId, id: { not: excludeId } },
+    take,
+  });
+}

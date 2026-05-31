@@ -3,6 +3,7 @@ import { CookieConsent } from "@/components/storefront/cookie-consent";
 import { FloatingActions } from "@/components/storefront/floating-actions";
 import { SiteFooter } from "@/components/storefront/site-footer";
 import { SiteHeader } from "@/components/storefront/site-header";
+import { getCartCount } from "@/lib/cart";
 import { getCategoryTree } from "@/lib/queries";
 
 export default async function StorefrontLayout({
@@ -10,7 +11,7 @@ export default async function StorefrontLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const tree = await getCategoryTree();
+  const [tree, cartCount] = await Promise.all([getCategoryTree(), getCartCount()]);
 
   const categories = tree.map((c) => ({
     id: c.id,
@@ -29,7 +30,7 @@ export default async function StorefrontLayout({
     <>
       <AnnouncementBar />
       <SiteHeader categories={categories} />
-      <FloatingActions />
+      <FloatingActions cartCount={cartCount} />
       <div className="flex-1">{children}</div>
       <SiteFooter categories={footerCategories} />
       <CookieConsent />
