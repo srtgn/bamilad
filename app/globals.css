@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+/* ─── SERENIQ brand palette ───────────────────────────────────────────────
+   Emitted as real CSS variables (usable in custom CSS below) and as Tailwind
+   utilities: bg-mocha, text-gold, bg-cream, text-ink, etc. */
+@theme {
+  --color-cream: #ece4d9;
+  --color-cream-soft: #f6f1ea;
+  --color-mocha: #8a7b64;
+  --color-mocha-light: #a99c87;
+  --color-mocha-dark: #6d6151;
+  --color-gold: #a8895f;
+  --color-ink: #211c17;
+}
+
+/* Fonts reference the next/font runtime variables, so they must be inlined. */
+@theme inline {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-poppins), var(--font-inter), sans-serif;
+}
+
+@layer base {
+  body {
+    background-color: #ffffff;
+    color: var(--color-ink);
+    font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5 {
+    font-family: var(--font-poppins), var(--font-inter), sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+}
+
+/* Scrolling marquee band ("PROTECT, AND ENHANCE YOUR NATURAL GLOW DAILY…") */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+
+/* Hide scrollbars on horizontal carousels */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

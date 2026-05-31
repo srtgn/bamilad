@@ -1,0 +1,30 @@
+# Local development Postgres for SERENIQ.
+# Production uses Railway's managed Postgres (DATABASE_URL injected automatically).
+#
+#   docker compose up -d      # start the database
+#   docker compose down       # stop it (data persists in the named volume)
+#   docker compose down -v     # stop AND wipe the database
+
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: bamilad-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: bamilad
+      POSTGRES_PASSWORD: bamilad
+      POSTGRES_DB: bamilad
+    # Host port 5433 (not 5432) to avoid clashing with any native Postgres already
+    # listening on 5432. The container still uses 5432 internally.
+    ports:
+      - "5433:5432"
+    volumes:
+      - bamilad_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bamilad -d bamilad"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  bamilad_pgdata:
