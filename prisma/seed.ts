@@ -16,8 +16,8 @@ const slugify = (s: string) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 
-const img = (text: string, w = 800, h = 800) =>
-  `https://placehold.co/${w}x${h}/ede6dd/8b7355?text=${encodeURIComponent(text)}`;
+// Images are intentionally left empty: the storefront renders on-brand CSS
+// placeholders until real photography is uploaded via the admin (Cloudinary).
 
 const categoryTree: { name: string; slug: string; children: string[] }[] = [
   { name: "Face Care", slug: "face-care", children: ["Face Wash", "Toners", "Serum", "Moisturizers", "Face Masks"] },
@@ -123,15 +123,15 @@ async function main() {
   for (const [pIdx, parent] of categoryTree.entries()) {
     const p = await prisma.category.upsert({
       where: { slug: parent.slug },
-      update: { name: parent.name, sortOrder: pIdx, image: img(parent.name, 1000, 700) },
-      create: { name: parent.name, slug: parent.slug, sortOrder: pIdx, image: img(parent.name, 1000, 700) },
+      update: { name: parent.name, sortOrder: pIdx, image: null },
+      create: { name: parent.name, slug: parent.slug, sortOrder: pIdx },
     });
     for (const [cIdx, childName] of parent.children.entries()) {
       const cslug = slugify(childName);
       await prisma.category.upsert({
         where: { slug: cslug },
-        update: { name: childName, parentId: p.id, sortOrder: cIdx },
-        create: { name: childName, slug: cslug, parentId: p.id, sortOrder: cIdx, image: img(childName, 1000, 700) },
+        update: { name: childName, parentId: p.id, sortOrder: cIdx, image: null },
+        create: { name: childName, slug: cslug, parentId: p.id, sortOrder: cIdx },
       });
     }
   }
@@ -154,6 +154,7 @@ async function main() {
         featured: prod.featured ?? false,
         trending: prod.trending ?? false,
         categoryId,
+        images: [],
       },
       create: {
         name: prod.name,
@@ -163,7 +164,7 @@ async function main() {
         compareAtPriceCents: prod.compareAtPriceCents ?? null,
         sku: slug.toUpperCase().replace(/-/g, "").slice(0, 12),
         stock: prod.stock,
-        images: [img(prod.name)],
+        images: [],
         featured: prod.featured ?? false,
         trending: prod.trending ?? false,
         categoryId,
@@ -176,13 +177,13 @@ async function main() {
     const slug = slugify(post.title);
     await prisma.blogPost.upsert({
       where: { slug },
-      update: { title: post.title, excerpt: post.excerpt, content: post.content },
+      update: { title: post.title, excerpt: post.excerpt, content: post.content, coverImage: null },
       create: {
         title: post.title,
         slug,
         excerpt: post.excerpt,
         content: post.content,
-        coverImage: img(post.title, 1200, 800),
+        coverImage: null,
         publishedAt: post.publishedAt,
         author: "Sereniq",
       },
