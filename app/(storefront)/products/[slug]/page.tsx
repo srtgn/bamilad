@@ -34,8 +34,29 @@ export default async function ProductPage({
   const related = await getRelatedProducts(product.categoryId, product.id, 4);
   const image = product.images[0];
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: product.description,
+    ...(product.sku ? { sku: product.sku } : {}),
+    offers: {
+      "@type": "Offer",
+      price: (product.priceCents / 100).toFixed(2),
+      priceCurrency: product.currency,
+      availability:
+        product.stock > 0
+          ? "https://schema.org/InStock"
+          : "https://schema.org/OutOfStock",
+    },
+  };
+
   return (
     <Container className="py-10 sm:py-14">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <nav className="flex flex-wrap items-center gap-1 text-xs text-mocha">
         <Link href="/" className="hover:text-gold">Home</Link>
         <ChevronRight className="h-3 w-3" />
